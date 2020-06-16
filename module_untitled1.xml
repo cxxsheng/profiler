@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_untitled1" default="compile.module.untitled1">
+  <dirname property="module.untitled1.basedir" file="${ant.file.module_untitled1}"/>
+  
+  <property name="module.jdk.home.untitled1" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.untitled1" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.untitled1" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.untitled1" value="-encoding UTF-8 -source 12 -target 12 ${compiler.args}"/>
+  
+  <property name="untitled1.output.dir" value="${module.untitled1.basedir}/out/production/untitled1"/>
+  <property name="untitled1.testoutput.dir" value="${module.untitled1.basedir}/out/test/untitled1"/>
+  
+  <path id="untitled1.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="untitled1.module.production.classpath">
+    <path refid="${module.jdk.classpath.untitled1}"/>
+    <path refid="library.android-base-common.classpath"/>
+    <path refid="library.annotations-19.0.0.classpath"/>
+    <path refid="library.slf4j-nop-1.7.30.classpath"/>
+    <path refid="library.slf4j-jdk14-1.7.30.classpath"/>
+  </path>
+  
+  <path id="untitled1.runtime.production.module.classpath">
+    <pathelement location="${untitled1.output.dir}"/>
+    <path refid="library.android-base-common.classpath"/>
+    <path refid="library.annotations-19.0.0.classpath"/>
+    <path refid="library.slf4j-nop-1.7.30.classpath"/>
+    <path refid="library.slf4j-jdk14-1.7.30.classpath"/>
+  </path>
+  
+  <path id="untitled1.module.classpath">
+    <path refid="${module.jdk.classpath.untitled1}"/>
+    <pathelement location="${untitled1.output.dir}"/>
+    <path refid="library.android-base-common.classpath"/>
+    <path refid="library.annotations-19.0.0.classpath"/>
+    <path refid="library.slf4j-nop-1.7.30.classpath"/>
+    <path refid="library.slf4j-jdk14-1.7.30.classpath"/>
+  </path>
+  
+  <path id="untitled1.runtime.module.classpath">
+    <pathelement location="${untitled1.testoutput.dir}"/>
+    <pathelement location="${untitled1.output.dir}"/>
+    <path refid="library.android-base-common.classpath"/>
+    <path refid="library.annotations-19.0.0.classpath"/>
+    <path refid="library.slf4j-nop-1.7.30.classpath"/>
+    <path refid="library.slf4j-jdk14-1.7.30.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.untitled1">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.untitled1">
+    <patternset refid="excluded.from.module.untitled1"/>
+  </patternset>
+  
+  <path id="untitled1.module.sourcepath">
+    <dirset dir="${module.untitled1.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.untitled1" depends="compile.module.untitled1.production,compile.module.untitled1.tests" description="Compile module untitled1"/>
+  
+  <target name="compile.module.untitled1.production" depends="register.custom.compilers" description="Compile module untitled1; production classes">
+    <mkdir dir="${untitled1.output.dir}"/>
+    <javac2 destdir="${untitled1.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.untitled1}/javac">
+      <compilerarg line="${compiler.args.untitled1}"/>
+      <bootclasspath refid="untitled1.module.bootclasspath"/>
+      <classpath refid="untitled1.module.production.classpath"/>
+      <src refid="untitled1.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.untitled1"/>
+    </javac2>
+    
+    <copy todir="${untitled1.output.dir}">
+      <fileset dir="${module.untitled1.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.untitled1.tests" depends="register.custom.compilers,compile.module.untitled1.production" description="compile module untitled1; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.untitled1" description="cleanup module">
+    <delete dir="${untitled1.output.dir}"/>
+    <delete dir="${untitled1.testoutput.dir}"/>
+  </target>
+</project>
