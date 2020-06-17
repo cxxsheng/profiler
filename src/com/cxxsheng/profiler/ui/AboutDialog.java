@@ -16,16 +16,19 @@ class AboutDialog extends JDialog {
   public final void initUI() {
     Font font = new Font("Serif", Font.BOLD, 13);
 
+    Icon logo = UiUtils.openIconTest("profiler");
 
+
+    JLabel name = new JLabel("Author: cxxsheng@gmail.com", logo, SwingConstants.CENTER);
+    name.setFont(font);
+    name.setAlignmentX(0.5f);
 
 
     JLabel desc = new JLabel("Tool to Trace Java Method");
     desc.setFont(font);
     desc.setAlignmentX(0.5f);
 
-    JLabel name = new JLabel("Author: cxxsheng@gmail.com", SwingConstants.CENTER);
-    name.setFont(font);
-    name.setAlignmentX(0.5f);
+
 
     JLabel version = new JLabel("profiler version: " + Settings.getVersion());
     version.setFont(font);

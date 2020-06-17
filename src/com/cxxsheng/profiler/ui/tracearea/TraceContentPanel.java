@@ -33,6 +33,10 @@ public class TraceContentPanel extends ContentPanel {
 
   private List<JNode> boldNodes = new ArrayList();
 
+  public JTree getTree() {
+    return tree;
+  }
+
   public TraceContentPanel(TabbedPane panel, JNode jnode) {
     super(panel, jnode);
     root= new JRoot(jnode.getParent().getDescription());

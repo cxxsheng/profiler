@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -65,7 +66,7 @@ public class MainWindow extends JFrame {
   private static final ImageIcon ICON_CLOSE = UiUtils.openIcon("cross");
   private static final ImageIcon ICON_SYNC = UiUtils.openIcon("sync");
   private static final ImageIcon ICON_FLAT_PKG = UiUtils.openIcon("empty_logical_package_obj");
-  private static final ImageIcon ICON_SEARCH = UiUtils.openIcon("wand");
+  private static final ImageIcon ICON_WAND = UiUtils.openIcon("wand");
   private static final ImageIcon ICON_FIND = UiUtils.openIcon("magnifier");
   private static final ImageIcon ICON_BACK = UiUtils.openIcon("icon_back");
   private static final ImageIcon ICON_FORWARD = UiUtils.openIcon("icon_forward");
@@ -90,9 +91,17 @@ public class MainWindow extends JFrame {
 
   private Thread initAdbThread;
   private void closeWindow() {
-    //if (!ensureProjectIsSaved()) {
-    //  return;
-    //}
+
+    if (testTreeRoot.hasChildren() && !testTreeRoot.isSaved()){
+      int res = JOptionPane.showConfirmDialog(
+        this,
+        NLS.str("dialog.content.unSaved"),
+        NLS.str("dialog.title.warning"),
+        JOptionPane.YES_NO_OPTION);
+      if (res == JOptionPane.NO_OPTION) {
+        return;
+      }
+    }
     //settings.setTreeWidth(splitPane.getDividerLocation());
     //settings.saveWindowPos(this);
     //settings.setMainWindowExtendedState(getExtendedState());
@@ -119,15 +128,14 @@ public class MainWindow extends JFrame {
     openAction.putValue(Action.ACCELERATOR_KEY, getKeyStroke(KeyEvent.VK_O, UiUtils.ctrlButton()));
 
 
-    //fixme
-    Action saveAction = new AbstractAction("Export trace", ICON_EXPORT) {
+
+    Action saveAction = new AbstractAction(NLS.str("file.export"), ICON_EXPORT) {
       @Override
       public void actionPerformed(ActionEvent e) {
         saveRecentTrace();
       }
     };
-    //fixme
-    saveAction.putValue(Action.SHORT_DESCRIPTION,"Export trace");
+    saveAction.putValue(Action.SHORT_DESCRIPTION,NLS.str("file.export"));
     saveAction.putValue(Action.ACCELERATOR_KEY, getKeyStroke(KeyEvent.VK_E, UiUtils.ctrlButton()));
 
 
@@ -158,25 +166,15 @@ public class MainWindow extends JFrame {
       }
     };
 
-    //isFlattenPackage = settings.isFlattenPackage();
-    //flatPkgMenuItem = new JCheckBoxMenuItem(NLS.str("menu.flatten"), ICON_FLAT_PKG);
-    //flatPkgMenuItem.setState(isFlattenPackage);
 
-    JCheckBoxMenuItem heapUsageBarMenuItem = new JCheckBoxMenuItem(NLS.str("menu.heapUsageBar"));
-    //heapUsageBarMenuItem.setState(settings.isShowHeapUsageBar());
-    heapUsageBarMenuItem.addActionListener(event -> {
-      //settings.setShowHeapUsageBar(!settings.isShowHeapUsageBar());
-      //heapUsageBar.setVisible(settings.isShowHeapUsageBar());
-    });
-
-    Action syncAction = new AbstractAction(NLS.str("menu.sync"), ICON_SYNC) {
+    Action expandAction = new AbstractAction(NLS.str("tool.expand"), UiUtils.openIcon("wand")) {
       @Override
       public void actionPerformed(ActionEvent e) {
-        //syncWithEditor();
+        expandSelectedNode();
       }
     };
-    syncAction.putValue(Action.SHORT_DESCRIPTION, NLS.str("menu.sync"));
-    syncAction.putValue(Action.ACCELERATOR_KEY, getKeyStroke(KeyEvent.VK_T, UiUtils.ctrlButton()));
+    expandAction.putValue(Action.SHORT_DESCRIPTION, NLS.str("tool.expand"));
+    expandAction.putValue(Action.ACCELERATOR_KEY, getKeyStroke(KeyEvent.VK_E, KeyEvent.VK_UNDEFINED));
 
     Action textSearchAction = new AbstractAction(NLS.str("menu.text_search"), ICON_FIND) {
       @Override
@@ -204,26 +202,6 @@ public class MainWindow extends JFrame {
       }
     };
 
-    Action backAction = new AbstractAction(NLS.str("nav.back"), ICON_BACK) {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        //tabbedPane.navBack();
-      }
-    };
-    backAction.putValue(Action.SHORT_DESCRIPTION, NLS.str("nav.back"));
-    backAction.putValue(Action.ACCELERATOR_KEY, getKeyStroke(KeyEvent.VK_LEFT,
-                                                             UiUtils.ctrlButton() | KeyEvent.ALT_DOWN_MASK));
-
-    Action forwardAction = new AbstractAction(NLS.str("nav.forward"), ICON_FORWARD) {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        //tabbedPane.navForward();
-      }
-    };
-    forwardAction.putValue(Action.SHORT_DESCRIPTION, NLS.str("nav.forward"));
-    forwardAction.putValue(Action.ACCELERATOR_KEY, getKeyStroke(KeyEvent.VK_RIGHT,
-                                                                UiUtils.ctrlButton() | KeyEvent.ALT_DOWN_MASK));
-
     initDevicesCombo();
 
 
@@ -241,15 +219,11 @@ public class MainWindow extends JFrame {
     JMenu view = new JMenu(NLS.str("menu.view"));
     view.setMnemonic(KeyEvent.VK_V);
     //view.add(flatPkgMenuItem);
-    view.add(syncAction);
-    view.add(heapUsageBarMenuItem);
+    view.add(expandAction);
 
     JMenu nav = new JMenu(NLS.str("menu.navigation"));
     nav.setMnemonic(KeyEvent.VK_N);
     nav.add(textSearchAction);
-    nav.addSeparator();
-    nav.add(backAction);
-    nav.add(forwardAction);
 
     JMenu tools = new JMenu(NLS.str("menu.tools"));
     tools.setMnemonic(KeyEvent.VK_T);
@@ -284,15 +258,9 @@ public class MainWindow extends JFrame {
     toolbar.add(saveAction);
     toolbar.add(saveAllAction);
     toolbar.addSeparator();
-    toolbar.add(syncAction);
-    //toolbar.add(flatPkgButton);
+    toolbar.add(expandAction);
     toolbar.addSeparator();
     toolbar.add(textSearchAction);
-    toolbar.addSeparator();
-    toolbar.add(backAction);
-    toolbar.add(forwardAction);
-    toolbar.addSeparator();
-    //toolbar.add(deobfToggleBtn);
     toolbar.addSeparator();
     toolbar.add(logAction);
     toolbar.addSeparator();
@@ -301,7 +269,6 @@ public class MainWindow extends JFrame {
     toolbar.add(devicesCombo);
 
     toolbar.add(Box.createHorizontalGlue());
-    //toolbar.add(updateLink);
 
     mainPanel.add(toolbar, BorderLayout.NORTH);
   }
@@ -313,7 +280,6 @@ public class MainWindow extends JFrame {
     String[] exts = { "profiler" };
     String description = "supported files: " + Arrays.toString(exts).replace('[', '(').replace(']', ')');
     fileChooser.setFileFilter(new FileNameExtensionFilter(description, exts));
-    //fixme
     fileChooser.setToolTipText(NLS.str("file.save_project"));
     int ret = fileChooser.showSaveDialog(mainPanel);
     if (ret == JFileChooser.APPROVE_OPTION){
@@ -336,8 +302,8 @@ public class MainWindow extends JFrame {
         FileOutputStream fos = new FileOutputStream(path.toFile());
         fos.write(res);
         fos.close();
-        //fixme
-        showInfoDialog("保存成功");
+        showInfoDialog(NLS.str("dialog.content.successfulSave"));
+        testTreeRoot.setSaved();
       } catch (IOException e) {
         showErrorDialog(e.getMessage());
       }
@@ -353,12 +319,29 @@ public class MainWindow extends JFrame {
       ((TraceContentPanel)current).setSearchTextVisible(true);
       SwingUtilities.invokeLater(((TraceContentPanel)current)::updateUI);
     }else if (current == null){
-      //fixme
-      showInfoDialog("请先打开trace文件");
+      showInfoDialog(NLS.str("dialog.content.openTraceReminder"));
     }else {
-      showInfoDialog("请选择你要搜索的trace窗口");
+      showInfoDialog(NLS.str("dialog.content.selectTraceReminder"));
     }
   }
+
+  private void expandSelectedNode(){
+    Component current = tabbedPane.getSelectedComponent();
+    if (current instanceof TraceContentPanel){
+      JTree tree = ((TraceContentPanel)current).getTree();
+      //TreePath node = tree.getLastSelectedPathComponent();
+
+    }
+  }
+
+  private void treeRightClickAction(MouseEvent e) {
+    Object obj = getJNodeUnderMouse(e);
+    if (obj instanceof JTrace) {
+      JTracePopUp menu = new JTracePopUp((JTrace) obj);
+      menu.show(e.getComponent(), e.getX(), e.getY());
+    }
+  }
+
 
   private void saveRecentTrace() {
     Component current = tabbedPane.getSelectedComponent();
@@ -371,7 +354,6 @@ public class MainWindow extends JFrame {
       String[] exts = { "trace" };
       String description = "supported files: " + Arrays.toString(exts).replace('[', '(').replace(']', ')');
       fileChooser.setFileFilter(new FileNameExtensionFilter(description, exts));
-      //fixme and checkme
       fileChooser.setToolTipText(NLS.str("file.save_project"));
 
       int ret = fileChooser.showSaveDialog(mainPanel);
@@ -391,16 +373,14 @@ public class MainWindow extends JFrame {
           }
         }
         if (trace.saveFile(path))
-          showInfoDialog("保存成功");
+          showInfoDialog(NLS.str("dialog.content.successfulSave"));
         else
-          showErrorDialog("保存失败");
-
+          showErrorDialog(NLS.str("dialog.content.failedSave"));
       }
     }else if (current == null){
-      //fixme
-      showInfoDialog("请先打开trace文件");
+      showInfoDialog(NLS.str("dialog.content.openTraceReminder"));
     }else {
-      showInfoDialog("请选择你要保存的trace窗口");
+      showInfoDialog(NLS.str("dialog.content.selectTraceReminde"));
     }
   }
 
@@ -408,13 +388,26 @@ public class MainWindow extends JFrame {
     CpuCaptureParser parser = new CpuCaptureParser();
     CpuCapture capture = parser.parse(path);
     if (capture != null)
-      //fixme
+      //fixme maybe
       updateTracesTree("TraceFile", "unknown", ClientData.MethodProfilingStatus.UNKNOWN, parser.getDescription(), parser, capture);
     else
       showErrorDialog("parse trace file failed!");
   }
 
   private void openProject(Path path) {
+
+    if (testTreeRoot.hasChildren() && testTreeRoot.isSaved()) {
+      int res = JOptionPane.showConfirmDialog(
+        this,
+        NLS.str("dialog.content.unSaved"),
+        NLS.str("dialog.title.warning"),
+        JOptionPane.YES_NO_OPTION);
+
+      if (res == JOptionPane.NO_OPTION) {
+        return;
+      }
+    }
+
     try{
 //    FileInputStream fis = new FileInputStream(path.toFile());
 //    byte[] bs  = fis.readAllBytes();
@@ -424,7 +417,7 @@ public class MainWindow extends JFrame {
 //      fis.close();
       testTreeRoot = JRoot.parse(map);
       //testTreeRoot = gson.fromJson(new String(bs),testTreeRoot.getClass());
-      //fixme 确认dialog没写
+
       treeModel.setRoot(testTreeRoot);
       SwingUtilities.invokeLater(()-> tree.updateUI());
     }catch (IOException e){
@@ -503,10 +496,6 @@ public class MainWindow extends JFrame {
     }
   }
 
-  //unused
-  private void treeRightClickAction(MouseEvent e) {
-
-  }
 
   private void initUI() {
     setMinimumSize(new Dimension(200, 150));
@@ -518,8 +507,7 @@ public class MainWindow extends JFrame {
 
 
     //DefaultMutableTreeNode treeRootNode = new DefaultMutableTreeNode(NLS.str("msg.open_file"));
-    //fixme
-    testTreeRoot= new JRoot("打开trace文件");
+    testTreeRoot= new JRoot(NLS.str("file.open_action"));
     treeModel = new DefaultTreeModel(testTreeRoot);
     tree = new JTree(treeModel);
     tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -693,8 +681,7 @@ public class MainWindow extends JFrame {
               devicesCombo.setMaximumSize(new Dimension(10,30));
         }
         if (devicesCombo.getItemCount() > 1 ){
-          //fixme
-          devicesCombo.insertItemAt("请选择",0);
+          devicesCombo.insertItemAt(NLS.str("selectedCombo.default"),0);
           devicesCombo.removeItemAt(1);
         }
     }
@@ -717,14 +704,12 @@ public class MainWindow extends JFrame {
       devicesCombo.setMaximumSize(new Dimension(10,30));
     }
     if (devicesCombo.getItemCount()==0)
-      //fixme
-        devicesCombo.addItem("等待设备连接");
+        devicesCombo.addItem(NLS.str("selectedCombo.noneDevice"));
   }
 
   synchronized private void clearDevicesCombo(){
     devicesCombo.removeAllItems();
-    //fixme
-    devicesCombo.addItem("等待设备连接");
+    devicesCombo.addItem(NLS.str("selectedCombo.noneDevice"));
     System.out.println(devicesCombo.getSize().getWidth());
   }
 
@@ -734,8 +719,7 @@ public class MainWindow extends JFrame {
         return;
       ProfilerClient[] profilerClients = ProfilerClient.clients2ProfilerClients(clients);
       ProfilerClient selectedClient  =
-        //fixme
-        (ProfilerClient)JOptionPane.showInputDialog(mainPanel, "选择进程", "进程列表", JOptionPane.PLAIN_MESSAGE, null, profilerClients, profilerClients[0]);
+        (ProfilerClient)JOptionPane.showInputDialog(mainPanel, NLS.str("processList.select"), NLS.str("processList.title"), JOptionPane.PLAIN_MESSAGE, null, profilerClients, profilerClients[0]);
 
       if (selectedClient!=null)
       {
@@ -754,8 +738,7 @@ public class MainWindow extends JFrame {
     {
       deviceNode = new JDevice(deviceName);
       if (!testTreeRoot.getStatus())
-        //fixme
-        testTreeRoot.setDescription("设备列表", true);
+        testTreeRoot.setDescription(NLS.str("root.title"), true);
       testTreeRoot.add(deviceNode);
     }
     return (JDevice)deviceNode;
@@ -786,7 +769,6 @@ public class MainWindow extends JFrame {
 
 
    synchronized private void updateTracesTree(@NotNull String deviceName, @NotNull String clientDescription, ClientData.MethodProfilingStatus clientStatus, @NotNull String traceDesc, @NotNull CpuCaptureParser parser, @NotNull CpuCapture capture){
-
      JNode processNode = addProcessNode(deviceName, clientDescription, clientStatus);
      JTrace jTrace = new JTrace(traceDesc, parser, capture);
      processNode.add(jTrace);
@@ -797,4 +779,29 @@ public class MainWindow extends JFrame {
 
 
 
+
+  private class JTracePopUp extends JPopupMenu {
+
+    JMenuItem deleteItem = new JCheckBoxMenuItem(NLS.str("popup.delete"));
+
+    public JTracePopUp(JTrace trace) {
+      add(deleteItem);
+      deleteItem.addItemListener(e -> {
+        if (!trace.isSaved()) {
+          int res = JOptionPane.showConfirmDialog(
+            this,
+            NLS.str("dialog.content.unSaved"),
+            NLS.str("dialog.title.warning"),
+            JOptionPane.YES_NO_OPTION);
+          if (res == JOptionPane.NO_OPTION) {
+            return;
+          }
+        }
+        JNode p = trace.getParent();
+        p.remove(trace);
+        SwingUtilities.invokeLater(tree::updateUI);
+
+      });
+    }
+  }
 }

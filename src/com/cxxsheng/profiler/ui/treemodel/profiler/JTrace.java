@@ -33,8 +33,11 @@ public class JTrace extends JNode {
 
   transient private List<JThread> threads = new ArrayList<>();
 
+  private boolean isSaved = false;
 
-
+  public boolean isSaved() {
+    return isSaved;
+  }
 
   public boolean saveFile(Path path){
       if (bytes == null || bytes.length == 0)
@@ -42,6 +45,7 @@ public class JTrace extends JNode {
       try{
         FileOutputStream out = new FileOutputStream(path.toFile());
         out.write(bytes);
+        isSaved = true;
         return true;
       }
       catch (IOException e) {
@@ -156,6 +160,7 @@ public class JTrace extends JNode {
 
   public static JTrace parse(@NotNull Map map) {
 
+
     String description = (String)map.get("description");
     boolean status = (boolean)map.get("status");
     byte[] bytes = Base64.decodeFast(map.get("bytes").toString());
@@ -170,7 +175,7 @@ public class JTrace extends JNode {
     }
     JTrace trace = new JTrace(description,bytes,threads);
     trace.setStatus(status);
-
+    trace.isSaved = true;
 
     List<Map> children = (List<Map>)map.get("children");
 

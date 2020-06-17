@@ -15,6 +15,17 @@ import java.util.Vector;
 public class JRoot extends JNode {
   private static final long serialVersionUID = 1069175078833390455L;
 
+
+  private boolean isSaved = false;
+
+  public boolean isSaved() {
+    return isSaved;
+  }
+
+  public void setSaved() {
+    isSaved = true;
+  }
+
   public Vector<TreeNode> getChildren(){
     return children;
   }
@@ -60,6 +71,7 @@ public class JRoot extends JNode {
     for (Map deviceMap : children){
       root.add(JDevice.parse(deviceMap));
     }
+    root.isSaved = true;
     return root;
   }
 }
