@@ -14,6 +14,6 @@
     <orderEntry type="library" name="android-profilers" level="project" />
     <orderEntry type="library" name="studio-profiler-grpc-1.0-jarjar" level="project" />
     <orderEntry type="library" name="adt-ui" level="project" />
-    <orderEntry type="library" name="com.alibaba:fastjson:1.2.17" level="project" />
+    <orderEntry type="library" name="com.alibaba:fastjson:1.2.17" level="application" />
   </component>
 </module>

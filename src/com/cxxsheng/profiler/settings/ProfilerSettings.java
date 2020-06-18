@@ -1,14 +1,11 @@
 package com.cxxsheng.profiler.settings;
 
 import com.alibaba.fastjson.JSONObject;
-import com.android.ddmlib.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,11 +80,11 @@ public class ProfilerSettings {
 
     public static boolean save_config_file(){
       try {
-        if(!Config.createNewFile())
-        {
-          LOG.error("createNewFile failed!");
-          return false;
-        }
+        if (!Config.exists())
+          if(!Config.createNewFile()) {
+            LOG.error("createNewFile failed!");
+            return false;
+          }
 
         Map<String, Object> configMap = new HashMap<>();
         configMap.put("ADB_PATH",ADB_PATH);
