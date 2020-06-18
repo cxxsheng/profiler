@@ -94,14 +94,7 @@ public class MainWindow extends JFrame {
   private void closeWindow() {
 
     if (testTreeRoot.hasChildren() && !testTreeRoot.isSaved()){
-      int res = JOptionPane.showConfirmDialog(
-        this,
-        NLS.str("dialog.content.unSaved"),
-        NLS.str("dialog.title.warning"),
-        JOptionPane.YES_NO_OPTION);
-      if (res == JOptionPane.NO_OPTION) {
-        return;
-      }
+      saveAll();
     }
     //settings.setTreeWidth(splitPane.getDividerLocation());
     //settings.saveWindowPos(this);
@@ -119,7 +112,11 @@ public class MainWindow extends JFrame {
   }
 
   private void showAdbDialog(){
-    AdbPathSelectionDialog.showAdbPathSelectionDialog(this);
+    if(AdbPathSelectionDialog.showAdbPathSelectionDialog(this))
+    {
+     showInfoDialog(NLS.str("dialog.content.restartInfo"));
+     closeWindow();
+    }
   }
 
   private void initMenuAndToolbar() {
@@ -530,8 +527,11 @@ public class MainWindow extends JFrame {
 
 
   private void initUI() {
+    LOG.info("size: h/"+ProfilerSettings.WINDOW_HEIGHT+", w/"+ProfilerSettings.WINDOW_WIDTH);
 
-    setPreferredSize(new Dimension(ProfilerSettings.WINDOW_WIDTH,ProfilerSettings.WINDOW_HEIGHT));
+    setMinimumSize(new Dimension(250,400));
+
+    setSize(new Dimension(ProfilerSettings.WINDOW_WIDTH, ProfilerSettings.WINDOW_HEIGHT));
     mainPanel = new JPanel(new BorderLayout());
     splitPane = new JSplitPane();
     splitPane.setResizeWeight(SPLIT_PANE_RESIZE_WEIGHT);
@@ -644,7 +644,7 @@ public class MainWindow extends JFrame {
   }
 
   public void init(){
-    pack();
+    //pack();
     //setLocationAndPosition();
     //splitPane.setDividerLocation(settings.getTreeWidth());
     //heapUsageBar.setVisible(settings.isShowHeapUsageBar());

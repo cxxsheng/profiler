@@ -116,7 +116,7 @@ public class TraceContentPanel extends ContentPanel {
     add(treeScrollPane);
 
 
-    searchText = new JIconTextField(UiUtils.openIconTest("close")) {
+    searchText = new JIconTextField(UiUtils.openIconTest("close_btn")) {
       @Override
       public void handleClick(JIconTextField jSearchTextField) {
         clearAllNodes();

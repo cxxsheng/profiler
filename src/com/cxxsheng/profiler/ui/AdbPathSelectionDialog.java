@@ -12,7 +12,7 @@ import java.nio.file.Path;
 
 public class AdbPathSelectionDialog extends JDialog {
 
-  static public void showAdbPathSelectionDialog(Component parent){
+  static public boolean showAdbPathSelectionDialog(Component parent){
     JPanel panel = new JPanel();
 
 
@@ -31,18 +31,24 @@ public class AdbPathSelectionDialog extends JDialog {
     };
     panel.add(textField);
     textField.setText(AdbService.adbPath);
-    //fixme
+
     int result = JOptionPane.showConfirmDialog(parent,panel,NLS.str("dialog.title.adbSelect"), JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
     if (result == 0){
         if (textField.getText()!=null)
           if (textField.getText().length() != 0)
-            update(textField.getText());
+            return update(textField.getText());
+
     }
-    System.out.println(result);
+
+    return false;
   }
 
-  private static void update(@NotNull String path){
+  private static boolean update(@NotNull String path){
+    path = path.trim();
+    if (path.equals(ProfilerSettings.ADB_PATH))
+      return false;
     AdbService.adbPath = path;
     ProfilerSettings.ADB_PATH = path;
+    return true;
   }
 }
