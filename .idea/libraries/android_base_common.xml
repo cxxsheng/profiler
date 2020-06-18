@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="android-base-common">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/android-base-common.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/ddmuilib-26.0.0-dev.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/guava-25.1-jre.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/sdk-tools.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/slf4j-api-1.7.30.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

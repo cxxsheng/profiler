@@ -14,7 +14,6 @@ public class ProcessesDialog extends JDialog {
         for (Client client : clients){
             processes.addElement(client);
         }
-
       }
   }
 }

@@ -1,6 +1,6 @@
 package com.cxxsheng.profiler.ui;
 
-import com.cxxsheng.profiler.core.Settings;
+import com.cxxsheng.profiler.settings.ProfilerSettings;
 import com.cxxsheng.profiler.utils.NLS;
 import com.cxxsheng.profiler.utils.UiUtils;
 import javax.swing.*;
@@ -30,7 +30,7 @@ class AboutDialog extends JDialog {
 
 
 
-    JLabel version = new JLabel("profiler version: " + Settings.getVersion());
+    JLabel version = new JLabel("profiler version: " + ProfilerSettings.getVersion());
     version.setFont(font);
     version.setAlignmentX(0.5f);
 

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="annotations-19.0.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/annotations-19.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

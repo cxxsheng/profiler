@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
@@ -106,10 +107,19 @@ public class MainWindow extends JFrame {
     //settings.saveWindowPos(this);
     //settings.setMainWindowExtendedState(getExtendedState());
     //cancelBackgroundJobs();
-    dispose();
 
+    ProfilerSettings.WINDOW_HEIGHT = getSize().height;
+    ProfilerSettings.WINDOW_WIDTH = getSize().width;
+
+    if(!ProfilerSettings.save_config_file())
+      LOG.error("save config failed!");
+    dispose();
     //FileUtils.deleteTempRootDir();
     System.exit(0);
+  }
+
+  private void showAdbDialog(){
+    AdbPathSelectionDialog.showAdbPathSelectionDialog(this);
   }
 
   private void initMenuAndToolbar() {
@@ -152,7 +162,7 @@ public class MainWindow extends JFrame {
     Action prefsAction = new AbstractAction(NLS.str("menu.preferences"), ICON_PREF) {
       @Override
       public void actionPerformed(ActionEvent e) {
-        new ProfilerSettingsWindow(MainWindow.this, new ProfilerSettings()).setVisible(true);
+        showAdbDialog();
       }
     };
     prefsAction.putValue(Action.SHORT_DESCRIPTION, NLS.str("menu.preferences"));
@@ -276,7 +286,6 @@ public class MainWindow extends JFrame {
   private void saveAll() {
     JFileChooser fileChooser = new JFileChooser();
 
-    //fixme and checkme
     String[] exts = { "profiler" };
     String description = "supported files: " + Arrays.toString(exts).replace('[', '(').replace(']', ')');
     fileChooser.setFileFilter(new FileNameExtensionFilter(description, exts));
@@ -308,7 +317,6 @@ public class MainWindow extends JFrame {
         showErrorDialog(e.getMessage());
       }
     }
-
   }
 
 
@@ -325,12 +333,36 @@ public class MainWindow extends JFrame {
     }
   }
 
-  private void expandSelectedNode(){
+  private static void expandAll(@NotNull JTree tree, @NotNull TreePath parent, boolean expand) {
+    // Traverse children
+    JNode node = (JNode)parent.getLastPathComponent();
+    if (node.getChildCount() >= 0) {
+      for (Enumeration e = node.children(); e.hasMoreElements(); ) {
+        JNode n = (JNode)e.nextElement();
+        TreePath path = parent.pathByAddingChild(n);
+        expandAll(tree, path, expand);
+      }
+    }
+
+    // Expansion or collapse must be done bottom-up
+    if (expand) {
+      tree.expandPath(parent);
+    }
+    else {
+      tree.collapsePath(parent);
+    }
+  }
+
+
+
+    private void expandSelectedNode(){
     Component current = tabbedPane.getSelectedComponent();
     if (current instanceof TraceContentPanel){
       JTree tree = ((TraceContentPanel)current).getTree();
-      //TreePath node = tree.getLastSelectedPathComponent();
-
+      TreePath path = tree.getSelectionPath();
+      if (path==null)
+        return;
+      expandAll(tree, path, !tree.isExpanded(path));
     }
   }
 
@@ -498,7 +530,8 @@ public class MainWindow extends JFrame {
 
 
   private void initUI() {
-    setMinimumSize(new Dimension(200, 150));
+
+    setPreferredSize(new Dimension(ProfilerSettings.WINDOW_WIDTH,ProfilerSettings.WINDOW_HEIGHT));
     mainPanel = new JPanel(new BorderLayout());
     splitPane = new JSplitPane();
     splitPane.setResizeWeight(SPLIT_PANE_RESIZE_WEIGHT);
@@ -596,6 +629,20 @@ public class MainWindow extends JFrame {
     //
     //tabbedPane.loadSettings();
   }
+
+  private boolean checkAdbPath(){
+    if (AdbService.adbPath == null || AdbService.adbPath.length() == 0 )
+      return false;
+    return true;
+  }
+
+  private void showAdbPathSettingDialog(){
+    //fixme
+    AdbPathSelectionDialog.showAdbPathSelectionDialog(this);
+    //restart
+    init();
+  }
+
   public void init(){
     pack();
     //setLocationAndPosition();
@@ -609,6 +656,10 @@ public class MainWindow extends JFrame {
         closeWindow();
       }
     });
+
+    if (!checkAdbPath()){
+      showAdbPathSettingDialog();
+    }
 
     AdbService.init(() -> {
         //updateDevices();
@@ -710,7 +761,6 @@ public class MainWindow extends JFrame {
   synchronized private void clearDevicesCombo(){
     devicesCombo.removeAllItems();
     devicesCombo.addItem(NLS.str("selectedCombo.noneDevice"));
-    System.out.println(devicesCombo.getSize().getWidth());
   }
 
   private void deviceSelectedAction(@NotNull IDevice device){
@@ -804,4 +854,5 @@ public class MainWindow extends JFrame {
       });
     }
   }
+
 }

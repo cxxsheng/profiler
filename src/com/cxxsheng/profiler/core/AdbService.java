@@ -4,6 +4,7 @@ import com.android.ddmlib.AndroidDebugBridge;
 import com.android.ddmlib.Client;
 import com.android.ddmlib.ClientData;
 import com.android.ddmlib.IDevice;
+import com.cxxsheng.profiler.settings.ProfilerSettings;
 import com.cxxsheng.profiler.utils.exceptions.ProfilerRuntimeException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,12 +16,12 @@ import java.util.Map;
 public class AdbService {
 
   private static final Logger LOG = LoggerFactory.getLogger(AdbService.class);
-  //fixme in settings
-  private static String adbPath = "/usr/local/bin/adb";
+
+  public static String adbPath = ProfilerSettings.ADB_PATH;
   private static Thread zthis;
   volatile private static Map<String, IDevice> active_devices = new HashMap<>();
   public synchronized static void init(@NotNull AdbServiceInitializedListener listener){
-    if (zthis==null)
+    if (zthis == null)
       zthis = new Thread(()->{
         AndroidDebugBridge.initIfNeeded(true);
         AndroidDebugBridge bridge = AndroidDebugBridge.createBridge(adbPath,false);
@@ -33,6 +34,7 @@ public class AdbService {
           }
           catch (InterruptedException e) {
             e.printStackTrace();
+            break;
           }
         }
         listener.onConnected();
@@ -46,6 +48,7 @@ public class AdbService {
   public interface AdbServiceInitializedListener{
     public void onConnected();
   }
+
   public static AndroidDebugBridge getBridge() {
     return AndroidDebugBridge.getBridge();
   }

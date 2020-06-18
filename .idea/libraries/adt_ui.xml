@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="adt-ui">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/adt-ui.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

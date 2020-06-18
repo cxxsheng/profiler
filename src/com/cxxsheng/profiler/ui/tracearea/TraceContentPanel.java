@@ -2,7 +2,7 @@ package com.cxxsheng.profiler.ui.tracearea;
 
 import com.android.tools.adtui.util.SwingUtil;
 import com.cxxsheng.profiler.ui.ContentPanel;
-import com.cxxsheng.profiler.ui.JSearchTextField;
+import com.cxxsheng.profiler.ui.JIconTextField;
 import com.cxxsheng.profiler.ui.TabbedPane;
 import com.cxxsheng.profiler.ui.treemodel.profiler.JNode;
 import com.cxxsheng.profiler.ui.treemodel.profiler.JRoot;
@@ -29,7 +29,7 @@ public class TraceContentPanel extends ContentPanel {
   private JTree tree;
   private JNode root;
   private DefaultTreeModel treeModel;
-  private JSearchTextField searchText;
+  private JIconTextField searchText;
 
   private List<JNode> boldNodes = new ArrayList();
 
@@ -116,9 +116,9 @@ public class TraceContentPanel extends ContentPanel {
     add(treeScrollPane);
 
 
-    searchText = new JSearchTextField() {
+    searchText = new JIconTextField(UiUtils.openIconTest("close")) {
       @Override
-      public void handleClick(JSearchTextField jSearchTextField) {
+      public void handleClick(JIconTextField jSearchTextField) {
         clearAllNodes();
         setSearchTextVisible(false);
       }

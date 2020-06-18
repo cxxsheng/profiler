@@ -20,7 +20,7 @@ public class ProfilerSettingsWindow extends JDialog {
 //    private final transient LangLocale prevLang;
 
 
-    public ProfilerSettingsWindow (MainWindow mainWindow, ProfilerSettings settings) {
+    private ProfilerSettingsWindow (MainWindow mainWindow, ProfilerSettings settings) {
 //        this.mainWindow = mainWindow;
 //        this.settings = settings;
 //        this.startSettings = JadxSettingsAdapter.makeString(settings);
