@@ -19,3 +19,4 @@ java -jar profiler.jar
 
 该工具也可以直接查看.trace文件。
 
+![](https://github.com/chason0528/profiler/blob/master/screenshoot/main.png)
