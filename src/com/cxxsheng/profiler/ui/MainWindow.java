@@ -112,7 +112,7 @@ public class MainWindow extends JFrame {
   }
 
   private void showAdbDialog(){
-    if(AdbPathSelectionDialog.showAdbPathSelectionDialog(this))
+    if(AdbPathSelectionDialog.showAdbPathSelectionDialog(this) == AdbPathSelectionDialog.MODIFIED_SUCCESSFULLY)
     {
      showInfoDialog(NLS.str("dialog.content.restartInfo"));
      closeWindow();
@@ -181,7 +181,7 @@ public class MainWindow extends JFrame {
       }
     };
     expandAction.putValue(Action.SHORT_DESCRIPTION, NLS.str("tool.expand"));
-    expandAction.putValue(Action.ACCELERATOR_KEY, getKeyStroke(KeyEvent.VK_E, KeyEvent.VK_UNDEFINED));
+    expandAction.putValue(Action.ACCELERATOR_KEY, getKeyStroke(KeyEvent.VK_F1, KeyEvent.VK_UNDEFINED));
 
     Action textSearchAction = new AbstractAction(NLS.str("menu.text_search"), ICON_FIND) {
       @Override
@@ -636,11 +636,13 @@ public class MainWindow extends JFrame {
     return true;
   }
 
-  private void showAdbPathSettingDialog(){
-    //fixme
-    AdbPathSelectionDialog.showAdbPathSelectionDialog(this);
-    //restart
-    init();
+  private void showAdbPathSettingDialog() {
+
+    if (AdbPathSelectionDialog.showAdbPathSelectionDialog(this) == AdbPathSelectionDialog.USER_CANCELED) {
+      closeWindow();
+    }else
+      //need to retry
+      init();
   }
 
   public void init(){

@@ -12,7 +12,12 @@ import java.nio.file.Path;
 
 public class AdbPathSelectionDialog extends JDialog {
 
-  static public boolean showAdbPathSelectionDialog(Component parent){
+
+  public static final int MODIFIED_SUCCESSFULLY = 0;
+  public static final int USER_CANCELED = -1;
+  public static final int RETRY_NEEDED = 1;
+
+  static public int showAdbPathSelectionDialog(Component parent){
     JPanel panel = new JPanel();
 
 
@@ -22,7 +27,7 @@ public class AdbPathSelectionDialog extends JDialog {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setToolTipText(NLS.str("dialog.title.adbSelect"));
-        int ret = fileChooser.showSaveDialog(this);
+        int ret = fileChooser.showOpenDialog(this);
         if (ret == JFileChooser.APPROVE_OPTION) {
           Path path = fileChooser.getSelectedFile().toPath();
           this.setText(path.toString());
@@ -36,11 +41,11 @@ public class AdbPathSelectionDialog extends JDialog {
     if (result == 0){
         if (textField.getText()!=null)
           if (textField.getText().length() != 0)
-            return update(textField.getText());
-
-    }
-
-    return false;
+             if(update(textField.getText()))
+               return MODIFIED_SUCCESSFULLY;
+    }else if (result == 2)
+      return USER_CANCELED;
+    return RETRY_NEEDED;
   }
 
   private static boolean update(@NotNull String path){
